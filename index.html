@@ -627,6 +627,23 @@
             }
         }
 
+        /* Easter Egg */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .matrix-rain.active {
+            opacity: 1;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-links {
@@ -922,6 +939,9 @@
         </svg>
     </div>
 
+    <!-- Easter Egg Canvas -->
+    <canvas id="matrixCanvas" class="matrix-rain"></canvas>
+
     <script>
         // Hamburger menu toggle
         const hamburger = document.getElementById('hamburger');
@@ -1024,6 +1044,76 @@
         // Observe elements for animation
         document.querySelectorAll('.service-card, .stat-box').forEach(el => {
             observer.observe(el);
+        });
+
+        // Easter Egg: Konami Code
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+        let matrixActive = false;
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === konamiCode[konamiIndex] || e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateMatrixEffect();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function activateMatrixEffect() {
+            if (matrixActive) return;
+            matrixActive = true;
+
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.classList.add('active');
+
+            const chars = '01VERACODIA';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            function draw() {
+                ctx.fillStyle = 'rgba(10, 24, 41, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#19A6CA';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            const interval = setInterval(draw, 33);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                canvas.classList.remove('active');
+                setTimeout(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    matrixActive = false;
+                }, 1000);
+            }, 5000);
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('matrixCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
     </script>
 </body>
