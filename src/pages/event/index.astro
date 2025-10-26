@@ -1,0 +1,155 @@
+---
+import { getCollection } from "astro:content";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+
+const eventsCollection = await getCollection("event");
+const events = [];
+
+for (const item of eventsCollection) {
+    console.log(item.data.images);
+    const {Content} = await item.render();
+    events.push({...item, renderedBody:Content })
+}
+// Events Page
+console.log('=================')
+console.log(events)
+console.log('=================')
+---
+
+<SiteLayout title="VeraCodia - Events">
+    <div class="container">
+        <h1>Events</h1>
+        {
+            events.length > 0 ? (
+                <div class="blog-grid">
+                    {events.map(async (event) => (
+                            <article class="blog-card">
+                                {/* Text content on the left */}
+                                <div class="blog-card-content">
+                                    <h3>{event.data.title}</h3>
+                                    <!--<p>-->
+                                    <!--    {event.body &&-->
+                                    <!--    event.body.length > 200-->
+                                    <!--        ? event.body.substring(0, 200) +-->
+                                    <!--          "..."-->
+                                    <!--        : event.body}-->
+                                    <!--</p>-->
+                                    {<event.renderedBody/>}
+
+                                </div>
+
+                                {/* Images on the right */}
+                                {event.data.images &&
+                                    event.data.images.length > 0 && (
+                                                <div class="blog-card-image-container">
+                                                    <div class="image-gallery">
+                                                        {event.data.images.map((image) => (
+                                                                <img
+                                                                        src={image}
+                                                                        alt={event.data.title}
+                                                                        class="event-image"
+                                                                        loading="lazy"
+                                                                />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                    )}
+                            </article>
+                    ))}
+                </div>
+            ) : (
+                <div class="no-posts">
+                    <h3>No events yet</h3>
+                    <p>Check back soon for upcoming events!</p>
+                </div>
+            )
+        }
+    </div>
+
+    <style>
+        /* .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        } */
+
+        .blog-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .blog-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            display: flex;
+            width: 100%;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-card-content {
+            padding: 25px;
+            flex: 1;
+        }
+
+        .blog-card-image-container {
+            flex: 0 0 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .blog-card h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .blog-card p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .event-image {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .blog-card {
+                flex-direction: column;
+            }
+
+            .blog-card-image-container {
+                flex: none;
+                order: -1; /* Move image to top on mobile */
+            }
+        }
+    </style>
+</SiteLayout>

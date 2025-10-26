@@ -20,4 +20,149 @@
         width: 36px;
         height: 36px;
     }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary {
+        background: linear-gradient(
+            135deg,
+            var(--logo-cyan),
+            var(--accent-purple)
+        );
+        color: var(--white);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(25, 166, 202, 0.3);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--white);
+        border: 2px solid var(--logo-cyan);
+    }
+
+    .btn-secondary:hover {
+        background: var(--logo-cyan);
+        transform: translateY(-3px);
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--white), var(--light-cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Scroll Buttons */
+    .scroll-btn {
+        position: fixed;
+        right: 30px;
+        width: 50px;
+        height: 43px;
+        background: linear-gradient(
+            135deg,
+            var(--logo-cyan),
+            rgba(89, 194, 208, 0.8)
+        );
+        clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        color: var(--white);
+        font-size: 1.5rem;
+    }
+
+    .scroll-btn:hover {
+        transform: scale(1.1);
+        background: linear-gradient(
+            135deg,
+            var(--light-cyan),
+            var(--logo-cyan)
+        );
+    }
+
+    .scroll-to-top {
+        bottom: 90px;
+    }
+
+    .scroll-to-bottom {
+        bottom: 30px;
+    }
+
+    .scroll-btn.visible {
+        opacity: 0.9;
+        visibility: visible;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+        to {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
 </style>
