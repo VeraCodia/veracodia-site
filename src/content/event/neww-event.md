@@ -1,5 +1,5 @@
 ---
-title: neww eventt
+title: neww even
 images:
   - /assets/images/screen.png
 ---
