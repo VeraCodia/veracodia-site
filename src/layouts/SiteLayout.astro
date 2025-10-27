@@ -1,14 +1,41 @@
 ---
-import Navbar from "../Components/navbar.astro";
-import GlobalStyles from "../Components/GlobalStyles.astro";
-const {title} = Astro.props;
+import Navbar from "../components/navbar.astro";
+import GlobalStyles from "../components/GlobalStyles.astro";
+const {
+    title,
+    description = "VeraCodia bridges the gap between global innovation and local expertise by connecting organizations with top Syrian tech talent to deliver secure, scalable, and future-ready digital solutions.",
+    ogImage = "/assets/images/og-image.png",
+    ogType = "website"
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- SEO Meta Tags -->
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta property="og:site_name" content="VeraCodia" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(ogImage, Astro.site)} />
 </head>
 <body>
     <Navbar />

@@ -2,153 +2,685 @@
 import { getCollection } from "astro:content";
 import SiteLayout from "../../layouts/SiteLayout.astro";
 
-const eventsCollection = await getCollection("event");
-const events = [];
+let events = [];
+let loadError = false;
 
-for (const item of eventsCollection) {
-    console.log(item.data.images);
-    const {Content} = await item.render();
-    events.push({...item, renderedBody:Content })
+try {
+    const eventsCollection = await getCollection("event");
+
+    for (const item of eventsCollection) {
+        try {
+            const {Content} = await item.render();
+            events.push({...item, renderedBody:Content });
+        } catch (renderError) {
+            console.error(`Failed to render event: ${item.id}`, renderError);
+            // Skip this event and continue with others
+        }
+    }
+
+    // Sort events by date (newest first)
+    events.sort((a, b) => {
+        const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+        const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+        return dateB - dateA;
+    });
+} catch (error) {
+    console.error('Failed to load events:', error);
+    loadError = true;
 }
-// Events Page
-console.log('=================')
-console.log(events)
-console.log('=================')
 ---
 
-<SiteLayout title="VeraCodia - Events">
-    <div class="container">
-        <h1>Events</h1>
-        {
-            events.length > 0 ? (
-                <div class="blog-grid">
-                    {events.map(async (event) => (
-                            <article class="blog-card">
-                                {/* Text content on the left */}
-                                <div class="blog-card-content">
-                                    <h3>{event.data.title}</h3>
-                                    <!--<p>-->
-                                    <!--    {event.body &&-->
-                                    <!--    event.body.length > 200-->
-                                    <!--        ? event.body.substring(0, 200) +-->
-                                    <!--          "..."-->
-                                    <!--        : event.body}-->
-                                    <!--</p>-->
-                                    {<event.renderedBody/>}
+<SiteLayout
+    title="VeraCodia - Events"
+    description="Discover VeraCodia's latest company events, activities, and achievements. Stay updated with our journey in delivering innovative technology solutions."
+>
+    <div class="hex-pattern" aria-hidden="true"></div>
 
+    <!-- Events Section -->
+    <section class="events-section">
+        <div class="container">
+            <div class="section-title">
+                <h1>Company Events</h1>
+                <p>Discover our latest activities and achievements</p>
+            </div>
+
+            {
+                loadError ? (
+                    <div class="no-events">
+                        <div class="hexagon-icon">
+                            <svg viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <h3>Unable to load events</h3>
+                        <p>There was an error loading the events. Please try refreshing the page.</p>
+                    </div>
+                ) : events.length > 0 ? (
+                    <div class="events-grid">
+                        {events.map((event, index) => (
+                            <article class="event-card">
+                                {/* Title and Date at the top */}
+                                <div class="event-header">
+                                    <h2>{event.data.title}</h2>
+                                    {event.data.date && (
+                                        <p class="event-date">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                            {new Date(event.data.date).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </p>
+                                    )}
                                 </div>
 
-                                {/* Images on the right */}
-                                {event.data.images &&
-                                    event.data.images.length > 0 && (
-                                                <div class="blog-card-image-container">
-                                                    <div class="image-gallery">
-                                                        {event.data.images.map((image) => (
-                                                                <img
-                                                                        src={image}
-                                                                        alt={event.data.title}
-                                                                        class="event-image"
-                                                                        loading="lazy"
-                                                                />
+                                <div class={`event-body ${!event.data.images || event.data.images.length === 0 ? 'no-images' : ''}`}>
+                                    {/* Body/Description on the left */}
+                                    <div class="event-content">
+                                        <event.renderedBody/>
+                                    </div>
+
+                                    {/* Image slider on the right */}
+                                    {event.data.images && event.data.images.length > 0 && (
+                                        <div class="event-images">
+                                            <div class="image-slider" data-slider={`slider-${index}`}>
+                                                {event.data.images.map((image, imgIndex) => (
+                                                    <div class={`slide ${imgIndex === 0 ? 'active' : ''}`}>
+                                                        <img
+                                                            src={image}
+                                                            alt={`${event.data.title} - Image ${imgIndex + 1}`}
+                                                            loading="lazy"
+                                                            class="slider-image"
+                                                            data-lightbox="true"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {event.data.images.length > 1 && (
+                                                <div class="slider-controls">
+                                                    <button class="slider-btn prev" data-slider={`slider-${index}`} aria-label="Previous image">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                            <path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </button>
+                                                    <div class="slider-dots" data-slider={`slider-${index}`}>
+                                                        {event.data.images.map((_, dotIndex) => (
+                                                            <span class={`dot ${dotIndex === 0 ? 'active' : ''}`} data-index={dotIndex}></span>
                                                         ))}
                                                     </div>
+                                                    <button class="slider-btn next" data-slider={`slider-${index}`} aria-label="Next image">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                            <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                    </button>
                                                 </div>
+                                            )}
+                                        </div>
                                     )}
+                                </div>
                             </article>
-                    ))}
-                </div>
-            ) : (
-                <div class="no-posts">
-                    <h3>No events yet</h3>
-                    <p>Check back soon for upcoming events!</p>
-                </div>
-            )
-        }
+                        ))}
+                    </div>
+                ) : (
+                    <div class="no-events">
+                        <div class="hexagon-icon">
+                            <svg viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <h3>No events yet</h3>
+                        <p>Check back soon for upcoming company events!</p>
+                    </div>
+                )
+            }
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+        <button class="lightbox-close" aria-label="Close image viewer (Escape)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="lightbox-content">
+            <img id="lightbox-image" src="" alt="">
+        </div>
     </div>
 
-    <style>
-        /* .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        } */
+    <script>
+        // Image slider functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const sliders = document.querySelectorAll('.image-slider');
 
-        .blog-grid {
+            sliders.forEach((slider) => {
+                const sliderId = slider.getAttribute('data-slider');
+                const slides = slider.querySelectorAll('.slide');
+                const prevBtn = document.querySelector(`.slider-btn.prev[data-slider="${sliderId}"]`);
+                const nextBtn = document.querySelector(`.slider-btn.next[data-slider="${sliderId}"]`);
+                const dotsContainer = document.querySelector(`.slider-dots[data-slider="${sliderId}"]`);
+                const dots = dotsContainer?.querySelectorAll('.dot');
+
+                let currentSlide = 0;
+
+                function showSlide(index) {
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    dots?.forEach(dot => dot.classList.remove('active'));
+
+                    if (index >= slides.length) currentSlide = 0;
+                    if (index < 0) currentSlide = slides.length - 1;
+
+                    slides[currentSlide].classList.add('active');
+                    dots?.[currentSlide]?.classList.add('active');
+                }
+
+                prevBtn?.addEventListener('click', () => {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                });
+
+                nextBtn?.addEventListener('click', () => {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                });
+
+                dots?.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentSlide = index;
+                        showSlide(currentSlide);
+                    });
+                });
+            });
+
+            // Lightbox functionality with keyboard navigation
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            const lightboxImages = document.querySelectorAll('[data-lightbox="true"]');
+
+            let currentLightboxIndex = 0;
+            let allImagesArray = Array.from(lightboxImages);
+
+            function openLightbox(index) {
+                currentLightboxIndex = index;
+                const img = allImagesArray[index];
+                lightboxImage.src = img.src;
+                lightboxImage.alt = img.alt;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                lightboxClose.focus(); // Focus close button for accessibility
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            function showNextImage() {
+                if (currentLightboxIndex < allImagesArray.length - 1) {
+                    openLightbox(currentLightboxIndex + 1);
+                }
+            }
+
+            function showPrevImage() {
+                if (currentLightboxIndex > 0) {
+                    openLightbox(currentLightboxIndex - 1);
+                }
+            }
+
+            lightboxImages.forEach((img, index) => {
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', () => openLightbox(index));
+            });
+
+            lightboxClose.addEventListener('click', closeLightbox);
+
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            // Enhanced keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (!lightbox.classList.contains('active')) return;
+
+                switch(e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        showNextImage();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        showPrevImage();
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        openLightbox(0);
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        openLightbox(allImagesArray.length - 1);
+                        break;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        /* Events Section */
+        .events-section {
+            padding: 120px 5% 80px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--white), var(--light-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+        }
+
+        .events-grid {
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            margin-top: 40px;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .blog-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        /* Event Card */
+        .event-card {
+            background: rgba(14, 38, 70, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(25, 166, 202, 0.2);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-            display: flex;
-            width: 100%;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease;
         }
 
-        .blog-card:hover {
+        .event-card:hover {
             transform: translateY(-5px);
+            border-color: var(--light-cyan);
+            box-shadow: 0 10px 40px rgba(25, 166, 202, 0.3);
         }
 
-        .blog-card-content {
-            padding: 25px;
-            flex: 1;
+        /* Event Header (Title at top) */
+        .event-header {
+            background: linear-gradient(135deg, rgba(25, 166, 202, 0.2), rgba(89, 194, 208, 0.1));
+            padding: 2rem 2.5rem;
+            border-bottom: 1px solid rgba(25, 166, 202, 0.3);
         }
 
-        .blog-card-image-container {
-            flex: 0 0 300px;
+        .event-header h2 {
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            margin: 0 0 0.75rem 0;
+            background: linear-gradient(135deg, var(--white), var(--light-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .event-date {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 15px;
-            background: #f9f9f9;
-        }
-
-        .blog-card h3 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 1.5rem;
-        }
-
-        .blog-card p {
-            color: #666;
-            line-height: 1.6;
+            gap: 0.5rem;
+            font-size: 1rem;
+            color: var(--text-dim);
             margin: 0;
         }
 
-        .no-posts {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        .event-date svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--light-cyan);
+            stroke-width: 2;
         }
 
-        .image-gallery {
+        /* Event Body (Content + Images) */
+        .event-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            padding: 2.5rem;
+        }
+
+        .event-body.no-images {
+            grid-template-columns: 1fr;
+        }
+
+        /* Event Content (Body text on left) */
+        .event-content {
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .event-content :global(p) {
+            margin-bottom: 1rem;
+        }
+
+        .event-content :global(h1),
+        .event-content :global(h2),
+        .event-content :global(h3) {
+            color: var(--light-cyan);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-content :global(img) {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .event-content :global(ul),
+        .event-content :global(ol) {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Event Images (Slider on right) */
+        .event-images {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .image-slider {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 15px;
+            overflow: hidden;
+            background: rgba(10, 24, 41, 0.5);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slider-image {
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .slider-image:hover {
+            opacity: 0.85;
+        }
+
+        /* Slider Controls */
+        .slider-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .slider-btn {
+            background: rgba(25, 166, 202, 0.3);
+            border: 1px solid rgba(25, 166, 202, 0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--white);
+        }
+
+        .slider-btn:hover {
+            background: rgba(25, 166, 202, 0.6);
+            border-color: var(--light-cyan);
+            transform: scale(1.1);
+        }
+
+        .slider-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .slider-dots {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(25, 166, 202, 0.3);
+            border: 1px solid rgba(25, 166, 202, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--logo-cyan);
+            border-color: var(--light-cyan);
+            transform: scale(1.3);
+        }
+
+        .dot:hover {
+            background: rgba(25, 166, 202, 0.6);
+        }
+
+        /* No Events State */
+        .no-events {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+
+        .hexagon-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, var(--logo-cyan), rgba(89, 194, 208, 0.3));
+            clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        .event-image {
-            max-width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 4px;
+        .hexagon-icon svg {
+            width: 50px;
+            height: 50px;
+            stroke: var(--white);
+            fill: none;
+            stroke-width: 2;
         }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .blog-card {
-                flex-direction: column;
+        .no-events h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--light-cyan);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(25, 166, 202, 0.3);
+            border: 1px solid rgba(25, 166, 202, 0.5);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--white);
+            z-index: 10000;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(25, 166, 202, 0.6);
+            border-color: var(--light-cyan);
+            transform: scale(1.1);
+        }
+
+        .lightbox-close svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .event-body {
+                grid-template-columns: 1fr;
             }
 
-            .blog-card-image-container {
-                flex: none;
-                order: -1; /* Move image to top on mobile */
+            .event-images {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .events-section {
+                padding: 100px 5% 60px;
+            }
+
+            .event-header {
+                padding: 1.5rem;
+            }
+
+            .event-body {
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .section-title {
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slider-controls {
+                gap: 0.5rem;
+            }
+
+            .slider-btn {
+                width: 35px;
+                height: 35px;
+            }
+
+            .slider-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .lightbox-close {
+                top: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .lightbox-close svg {
+                width: 20px;
+                height: 20px;
             }
         }
     </style>
