@@ -16,5 +16,5 @@ VeraCodia participated as an exhibitor at **TEXPO Land 2025**, where we had an i
 - Demonstrated commitment to transforming business operations
 
 **Related Links:**
-- <a href="(https://www.linkedin.com/feed/update/urn:li:activity:7386333944365105155" target="_blank">linkedin VeraCodia</a>
+- <a href="https://www.linkedin.com/feed/update/urn:li:activity:7386333944365105155" target="_blank">linkedin VeraCodia</a>
 - <a href="https://hdour.com/exhibitor/veracodia/" target="_blank">VeraCodia - حضور</a>
