@@ -370,56 +370,6 @@ import SiteLayout from '../layouts/SiteLayout.astro';
     <canvas id="matrixCanvas" class="matrix-rain"></canvas>
 
     <script>
-        // Hamburger menu toggle
-        const hamburger = document.getElementById("hamburger");
-        const navLinks = document.getElementById("navLinks");
-
-        hamburger.addEventListener("click", () => {
-            const isExpanded = hamburger.classList.toggle("active");
-            navLinks.classList.toggle("active");
-            hamburger.setAttribute("aria-expanded", isExpanded);
-        });
-
-        // Close menu when clicking a link
-        document.querySelectorAll(".nav-links a").forEach((link) => {
-            link.addEventListener("click", () => {
-                hamburger.classList.remove("active");
-                navLinks.classList.remove("active");
-                hamburger.setAttribute("aria-expanded", "false");
-            });
-        });
-
-        // Navbar scroll effect and scroll buttons visibility
-        const scrollToTop = document.getElementById("scrollToTop");
-        const scrollToBottom = document.getElementById("scrollToBottom");
-
-        window.addEventListener("scroll", () => {
-            const navbar = document.getElementById("navbar");
-            const scrollPosition = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-
-            // Navbar effect
-            if (scrollPosition > 50) {
-                navbar.classList.add("scrolled");
-            } else {
-                navbar.classList.remove("scrolled");
-            }
-
-            // Show/hide scroll to top button
-            if (scrollPosition > 300) {
-                scrollToTop.classList.add("visible");
-            } else {
-                scrollToTop.classList.remove("visible");
-            }
-
-            // Show/hide scroll to bottom button
-            if (scrollPosition < documentHeight - windowHeight - 300) {
-                scrollToBottom.classList.add("visible");
-            } else {
-                scrollToBottom.classList.remove("visible");
-            }
-        });
 
         // Scroll to top functionality
         scrollToTop.addEventListener("click", () => {
@@ -934,38 +884,6 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: rgba(14, 38, 70, 0.95);
-                flex-direction: column;
-                padding: 2rem;
-                gap: 1rem;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .hamburger.active span:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
-            }
-
-            .hamburger.active span:nth-child(2) {
-                opacity: 0;
-            }
-
-            .hamburger.active span:nth-child(3) {
-                transform: rotate(-45deg) translate(7px, -6px);
-            }
-
             .hero-content,
             .about-content,
             .contact-content {
