@@ -39,8 +39,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:image" content={new URL(ogImage, Astro.site)} />
 </head>
 <body>
-    <Navbar />
-<slot/>
+    <header role="banner">
+        <Navbar />
+    </header>
+    <main role="main">
+        <slot/>
+    </main>
 <!-- Footer -->
 <footer id="footer">
     <div class="container">
