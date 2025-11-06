@@ -1,0 +1,24 @@
+---
+/**
+ * GoatCounter Analytics Component
+ *
+ */
+
+const { code = "veracodiadev", enableInDev = false } = Astro.props;
+
+// Only load in production unless explicitly enabled in dev
+const isDev = import.meta.env.DEV;
+const shouldLoad = !isDev || enableInDev;
+
+const goatCounterUrl = `https://${code}.goatcounter.com/count`;
+---
+
+{
+    shouldLoad && code && (
+        <script
+            data-goatcounter={goatCounterUrl}
+            async
+            src="//gc.zgo.at/count.js"
+        ></script>
+    )
+}

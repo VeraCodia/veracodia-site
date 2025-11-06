@@ -1,6 +1,7 @@
 ---
 import Navbar from "../Components/navbar.astro";
 import GlobalStyles from "../Components/GlobalStyles.astro";
+import GoatCounter from "../Components/GoatCounter.astro";
 const {
     title,
     description = "VeraCodia bridges the gap between global innovation and local expertise by connecting organizations with top Syrian tech talent to deliver secure, scalable, and future-ready digital solutions.",
@@ -66,6 +67,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         </div>
     </div>
 </footer>
+    <GoatCounter />
 </body>
 <GlobalStyles />
 <style >
