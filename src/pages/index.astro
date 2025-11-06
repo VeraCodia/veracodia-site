@@ -338,7 +338,8 @@ import SiteLayout from '../layouts/SiteLayout.astro';
                     <a
                             href="mailto:info@veracodia.com"
                             class="btn btn-primary"
-                            id="sendEmail">Send Message</a
+                            id="sendEmail"
+                            onclick="window.goatcounter?.count({path: '/email-click', title: 'Email Contact Click', event: true})">Send Message</a
                     >
                 </form>
             </div>

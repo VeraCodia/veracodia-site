@@ -54,6 +54,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                     href="https://www.linkedin.com/company/veracodia/"
                     target="_blank"
                     aria-label="LinkedIn"
+                    onclick="window.goatcounter?.count({path: '/outbound-linkedin-footer', title: 'LinkedIn Footer Click', event: true})"
             >
                 <svg
                         class="icon"
