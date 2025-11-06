@@ -320,6 +320,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
                                 <a
                                         href="https://www.linkedin.com/company/veracodia/"
                                         target="_blank"
+                                        id="contact-linkedin-link"
                                         style="color: var(--light-cyan); text-decoration: none;"
                                 >Connect with us</a>
                             </p>
@@ -920,4 +921,17 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             }
         }
     </style>
+    <script>
+        document.getElementById('sendEmail')?.addEventListener('click', () => {
+            if (window.rybbit) {
+                window.rybbit.event('email_contact_click', { source: 'contact_form' });
+            }
+        });
+
+        document.getElementById('contact-linkedin-link')?.addEventListener('click', () => {
+            if (window.rybbit) {
+                window.rybbit.event('linkedin_contact_click', { source: 'contact_section' });
+            }
+        });
+    </script>
 </SiteLayout>

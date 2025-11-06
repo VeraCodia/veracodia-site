@@ -1,0 +1,22 @@
+---
+/**
+ * Rybbit Analytics Component
+ *
+ */
+
+const { siteId = "8f0378c7ae5f", enableInDev = false } = Astro.props;
+
+// Only load in production unless explicitly enabled in dev
+const isDev = import.meta.env.DEV;
+const shouldLoad = !isDev || enableInDev;
+---
+
+{
+    shouldLoad && siteId && (
+        <script
+            src="https://app.rybbit.io/api/script.js"
+            data-site-id={siteId}
+            defer
+        ></script>
+    )
+}
